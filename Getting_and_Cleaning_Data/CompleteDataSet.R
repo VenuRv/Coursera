@@ -1,3 +1,4 @@
+library(dplyr)        
         abs_dir <- "C:/Projects/2014/R/Getting and Cleaning data/UCI HAR Dataset/"
 ## Create variable names
         filename <- "features.txt"
@@ -41,20 +42,23 @@
 #### Create mean and Std data
         meanData<- select(mergedData,contains(".mean.."))
         stdData <- select(mergedData,contains(".std.."))
-        measureData <- cbind(meanData,stdData)
+        measureData <- cbind(mergedData$Subject,mergedData$id,meanData,stdData)
+        colnames(measureData)[1] <- "Subject"
+        colnames(measureData)[2] <- "Activity"
+        
        
 #### renaming activities
         id <- c(1,2,3,4,5,6)
         Labels <- c("WALKING","WALKING_UPSTAIRS","WALKING_DOWNSTAIRS","SITTING","STANDING","LAYING")
         ActLabels <- data.frame(id,Labels)
-        mergedData$id <- ActLabels[match(mergedData$id,ActLabels$id),2]
+        measureData$Activity <- ActLabels[match(measureData$Activity,ActLabels$id),2]
 
 #### mean of all variables groups by subject and activity
-        tidyData <- aggregate(mergedData, by=list(mergedData$Subject,mergedData$id),FUN="mean")
+        tidyData <- aggregate(measureData, by=list(measureData$Subject,measureData$Activity),FUN="mean")
         colnames(tidyData)[1]<- "Subject"
         colnames(tidyData)[2]<- "Activity"
-        tidyData$id <- NULL
+        tidyData[3] <- NULL
         tidyData[3]<-NULL
-        write.csv(tidyData,"C:/Projects/2014/R/Getting and Cleaning data/tidyData.csv")
+                write.table(tidyData,"C:/Projects/2014/R/Getting and Cleaning data/tidyData.txt",row.names=FALSE)
         
 
